@@ -19,20 +19,17 @@ pathMessage BYTE "Path to your PE file:",13,10, 0
 fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
 errorWhileReadingMessege BYTE  "Error while reading",13,10,0
 fileOpenErrorMessege BYTE  "Can't open file",0
+fileSizeErrorMessege BYTE  "Can't determinate file size",0
 
-FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\test.txt",NULL
-fileHandle HANDLE  ?
-
-testValue db 9
+FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
+fileHandle DWORD  ?
 
 buff db 100 dup(?)
 ;Variable will store amout of read bytes
-readInfo WORD 0
+readInfo dd 0
 
 .code 
 main:
-
-mov eax,offset testValue
 
 invoke SetConsoleTitle, addr consoleTitle
 
@@ -40,30 +37,65 @@ invoke StdOut, offset titleMessage
 invoke StdOut, offset pathMessage
 invoke StdIn, offset buff, 100
 
-invoke  CreateFile,addr FileName, GENERIC_READ, FILE_SHARE_READ OR FILE_SHARE_WRITE,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL
-
+xor eax,eax
+;Try to open file
+invoke  CreateFile,addr FileName, GENERIC_READ,FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0
+;Cheecking resault
 mov fileHandle,eax
+
+.IF fileHandle==INVALID_HANDLE_VALUE
+    jmp fileOpenError
+.ENDIF
+
 cmp fileHandle,INVALID_HANDLE_VALUE
-jz fileOpenError
 
 
+;File was opend successfully ! -messege
 invoke StdOut,offset fileOpenSuccessMessege
 
+;---------------------------------READING----------------------------------
 ;Read IMAGE_DOS_SIGNATURE it must be "MZ" for exe files OFFSET 0  SIZE WORD
-invoke ReadFile,addr fileHandle,addr buff,2,readInfo,0
-
+invoke ReadFile,fileHandle,addr buff,2,addr readInfo,0
 cmp readInfo,2
-jnz fileOpenError
+
+;mov eax, DWORD PTR readInfo
+invoke StdOut,offset buff
+
+jnz readingError
+
+jmp closeFile
+;---------------------------------END READING------------------------------
+
+
+;Get file size
+invoke GetFileSize, offset fileHandle, NULL
+mov readInfo,eax
+cmp readInfo,INVALID_FILE_SIZE
+jz fileSizeError
+
+invoke StdOut, offset readInfo
+
+jmp endPE
 
 
 
 jmp endPE
 
-readingError:
-invoke StdOut,offset errorWhileReadingMessege
 
 fileOpenError:
 invoke StdOut,offset fileOpenErrorMessege
+jmp endPE
+
+readingError:
+invoke StdOut,offset errorWhileReadingMessege
+jmp closeFile
+
+fileSizeError:
+invoke StdOut,offset fileSizeErrorMessege
+
+closeFile:
+invoke CloseHandle,offset fileHandle
+jmp endPE
 
 
 
