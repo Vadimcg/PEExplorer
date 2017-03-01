@@ -74,7 +74,6 @@ invoke ReadFile,fileHandle,addr buff,2,addr readInfo,0
 cmp readInfo,2
 jnz readingError
 
-;mov eax, DWORD PTR readInfo
 
 ;Cheecking on exe format
 mov esi,offset buff
@@ -86,6 +85,13 @@ jnz notExeFileError
 mov al,[esi+1]
 cmp al,5Ah
 jnz notExeFileError
+
+;mov cursore to e_lfanew
+invoke SetFilePointer,fileHandle,2,0,FILE_BEGIN
+;reading e_lfanew 
+invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
+
+invoke StdOut,offset buff
 
 
 
