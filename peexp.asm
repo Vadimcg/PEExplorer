@@ -20,9 +20,10 @@ fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
 errorWhileReadingMessege BYTE  "Error while reading",13,10,0
 fileOpenErrorMessege BYTE  "Can't open file",0
 fileSizeErrorMessege BYTE  "Can't determinate file size",0
+fileIsNotEXEErrorMessege BYTE  "It isn't exe file!",0
 
 fileSizeIsMessege BYTE  "File size is:",0
-bytesMessege BYTE " bytes",0
+bytesMessege BYTE " bytes",13,10,0
 
 FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
 fileHandle DWORD  ?
@@ -53,9 +54,9 @@ jz fileOpenError
 invoke StdOut,offset fileOpenSuccessMessege
 
 ;--------------------------------GETTING SIZE------------------------------
-invoke GetFileSize,fileHandle, offset readInfo
+invoke GetFileSize,fileHandle, NULL
+mov readInfo,eax
 
-;mov readInfo,eax
 cmp readInfo,INVALID_FILE_SIZE
 jz fileSizeError
 
@@ -71,11 +72,23 @@ mov readInfo,0
 ;Read IMAGE_DOS_SIGNATURE it must be "MZ" for exe files OFFSET 0  SIZE WORD
 invoke ReadFile,fileHandle,addr buff,2,addr readInfo,0
 cmp readInfo,2
+jnz readingError
 
 ;mov eax, DWORD PTR readInfo
-invoke StdOut,offset buff
 
-jnz readingError
+;Cheecking on exe format
+mov esi,offset buff
+
+mov al,[esi]
+cmp al, 4Dh
+jnz notExeFileError
+
+mov al,[esi+1]
+cmp al,5Ah
+jnz notExeFileError
+
+
+
 ;---------------------------------END READING------------------------------
 
 
@@ -87,6 +100,10 @@ jmp endPE
 
 readingError:
 invoke StdOut,offset errorWhileReadingMessege
+jmp closeFile
+
+notExeFileError:
+invoke StdOut,offset fileIsNotEXEErrorMessege
 jmp closeFile
 
 fileSizeError:
