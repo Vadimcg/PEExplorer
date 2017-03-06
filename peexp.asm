@@ -75,7 +75,7 @@ cmp readInfo,2
 jnz readingError
 
 
-;Cheecking on exe format
+;Cheecking on DOS format
 mov esi,offset buff
 
 mov al,[esi]
@@ -87,10 +87,13 @@ cmp al,5Ah
 jnz notExeFileError
 
 ;mov cursore to e_lfanew
-invoke SetFilePointer,fileHandle,2,0,FILE_BEGIN
+invoke SetFilePointer,fileHandle,3Ch,0,FILE_BEGIN
 ;reading e_lfanew 
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
 
+;reading PE title
+invoke SetFilePointer,fileHandle,offset buff,0,FILE_BEGIN
+invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
 invoke StdOut,offset buff
 
 
