@@ -9,7 +9,7 @@ includelib \masm32\lib\masm32.lib
 include \masm32\include\user32.inc 
 includelib \masm32\lib\user32.lib
 
- 
+
 .data
 
 consoleTitle BYTE "PEExplorer",0
@@ -21,6 +21,9 @@ errorWhileReadingMessege BYTE  "Error while reading",13,10,0
 fileOpenErrorMessege BYTE  "Can't open file",0
 fileSizeErrorMessege BYTE  "Can't determinate file size",0
 fileIsNotEXEErrorMessege BYTE  "It isn't exe file!",0
+debugMessege BYTE  "DEBUG",0
+
+
 
 fileSizeIsMessege BYTE  "File size is:",0
 bytesMessege BYTE " bytes",13,10,0
@@ -28,18 +31,31 @@ bytesMessege BYTE " bytes",13,10,0
 FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
 fileHandle DWORD  ?
 
-buff db 100 dup(?)
+buff WORD 100 dup(?)
 ;Variable will store amout of read bytes
 readInfo dd ?
 
+adreessVal dd ?
+
 .code 
+
+;Function clear buffer
+clearBuffer PROC
+    invoke StdOut,OFFSET debugMessege
+    ret
+clearBuffer ENDP
 main:
 
 invoke SetConsoleTitle, addr consoleTitle
 
+
+call clearBuffer
+
 invoke StdOut, offset titleMessage
 invoke StdOut, offset pathMessage
 invoke StdIn, offset buff, 100
+
+
 
 xor eax,eax
 ;Try to open file
@@ -75,6 +91,8 @@ cmp readInfo,2
 jnz readingError
 
 
+
+
 ;Cheecking on DOS format
 mov esi,offset buff
 
@@ -91,12 +109,19 @@ invoke SetFilePointer,fileHandle,3Ch,0,FILE_BEGIN
 ;reading e_lfanew 
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
 
+mov eax,DWORD PTR buff
+
+INVOKE  dw2hex,eax,OFFSET adreessVal
+mov eax,adreessVal
+
+invoke StdOut,OFFSET adreessVal
+
 ;reading PE title
-invoke SetFilePointer,fileHandle,offset buff,0,FILE_BEGIN
+invoke SetFilePointer,fileHandle,00000100h,0,FILE_BEGIN
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
-invoke StdOut,offset buff
+mov  eax,DWORD PTR buff
 
-
+invoke StdOut,OFFSET buff
 
 ;---------------------------------END READING------------------------------
 
@@ -128,3 +153,7 @@ endPE:
 invoke ExitProcess, 0
 
 end main
+
+
+
+
