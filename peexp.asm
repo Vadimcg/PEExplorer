@@ -111,13 +111,8 @@ invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
 
 mov eax,DWORD PTR buff
 
-INVOKE  dw2hex,eax,OFFSET adreessVal
-mov eax,adreessVal
-
-invoke StdOut,OFFSET adreessVal
-
 ;reading PE title
-invoke SetFilePointer,fileHandle,00000100h,0,FILE_BEGIN
+invoke SetFilePointer,fileHandle,eax,0,FILE_BEGIN
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
 mov  eax,DWORD PTR buff
 
