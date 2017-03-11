@@ -20,7 +20,10 @@ fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
 errorWhileReadingMessege BYTE  "Error while reading",13,10,0
 fileOpenErrorMessege BYTE  "Can't open file",0
 fileSizeErrorMessege BYTE  "Can't determinate file size",0
-fileIsNotEXEErrorMessege BYTE  "It isn't exe file!",0
+fileHaveNotDosHeaderErrorMessege BYTE  "It hasn't DOS title!",0
+fileIsNotPEErrorMessege BYTE  "it's not PE file",0
+PEMessege BYTE  "it is PE file",0
+
 debugMessege BYTE  "DEBUG",0
 
 
@@ -31,7 +34,7 @@ bytesMessege BYTE " bytes",13,10,0
 FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
 fileHandle DWORD  ?
 
-buff WORD 100 dup(?)
+buff BYTE 100 dup(?)
 ;Variable will store amout of read bytes
 readInfo dd ?
 
@@ -114,9 +117,25 @@ mov eax,DWORD PTR buff
 ;reading PE title
 invoke SetFilePointer,fileHandle,eax,0,FILE_BEGIN
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
-mov  eax,DWORD PTR buff
+ 
+ ;Checking PE title
+mov al,buff
+cmp al,50h
 
-invoke StdOut,OFFSET buff
+;if it is not PE!
+jnz notPEFileError
+
+mov al,buff+1
+cmp al,45h
+
+;if it is not PE!
+jnz notPEFileError
+
+
+;if it is PE 
+invoke StdOut, offset PEMessege
+
+
 
 ;---------------------------------END READING------------------------------
 
@@ -132,7 +151,11 @@ invoke StdOut,offset errorWhileReadingMessege
 jmp closeFile
 
 notExeFileError:
-invoke StdOut,offset fileIsNotEXEErrorMessege
+invoke StdOut,offset fileHaveNotDosHeaderErrorMessege
+jmp closeFile
+
+notPEFileError:
+invoke StdOut,offset fileIsNotPEErrorMessege
 jmp closeFile
 
 fileSizeError:
