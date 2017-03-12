@@ -22,7 +22,7 @@ fileOpenErrorMessege BYTE  "Can't open file",0
 fileSizeErrorMessege BYTE  "Can't determinate file size",0
 fileHaveNotDosHeaderErrorMessege BYTE  "It hasn't DOS title!",0
 fileIsNotPEErrorMessege BYTE  "it's not PE file",0
-PEMessege BYTE  "it is PE file",0
+PEMessege BYTE  "it is PE file",13,10, 0
 
 debugMessege BYTE  "DEBUG",0
 
@@ -81,7 +81,8 @@ jz fileSizeError
 
 ;Show information about size
 invoke StdOut, offset fileSizeIsMessege
-invoke StdOut, offset readInfo
+invoke dwtoa,offset readInfo,offset buff
+invoke StdOut, offset buff
 invoke StdOut, offset bytesMessege
 ;-------------------------------END----------------------------------------
 
@@ -92,9 +93,6 @@ mov readInfo,0
 invoke ReadFile,fileHandle,addr buff,2,addr readInfo,0
 cmp readInfo,2
 jnz readingError
-
-
-
 
 ;Cheecking on DOS format
 mov esi,offset buff
@@ -113,10 +111,12 @@ invoke SetFilePointer,fileHandle,3Ch,0,FILE_BEGIN
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
 
 mov eax,DWORD PTR buff
+mov adreessVal,eax
 
 ;reading PE title
-invoke SetFilePointer,fileHandle,eax,0,FILE_BEGIN
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,addr buff,4,addr readInfo,0
+
  
  ;Checking PE title
 mov al,buff
@@ -134,6 +134,22 @@ jnz notPEFileError
 
 ;if it is PE 
 invoke StdOut, offset PEMessege
+
+
+;Reading of IMAGE_FILE_HEADER 20bytes after signature
+
+
+;Machine
+
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke SetFilePointer,fileHandle,0,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
+;invoke dwtoa,offset readInfo,offset buff
+invoke StdOut, offset buff
+
 
 
 
