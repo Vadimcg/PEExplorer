@@ -8,13 +8,15 @@ includelib \masm32\lib\kernel32.lib
 includelib \masm32\lib\masm32.lib
 include \masm32\include\user32.inc 
 includelib \masm32\lib\user32.lib
-
-
+    
 .data
 
 consoleTitle BYTE "PEExplorer",0
 titleMessage BYTE "Portable Executable Explorer",13,10, 0
 pathMessage BYTE "Path to your PE file:",13,10, 0
+machineMessageTitle BYTE "Machine:",0
+endMachineMessageTitle BYTE " type", 0
+
 
 fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
 errorWhileReadingMessege BYTE  "Error while reading",13,10,0
@@ -145,14 +147,11 @@ mov eax,adreessVal
 add eax,4
 mov adreessVal,eax
 
-invoke SetFilePointer,fileHandle,0,0,FILE_BEGIN
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
-;invoke dwtoa,offset readInfo,offset buff
+invoke StdOut, offset machineMessageTitle
 invoke StdOut, offset buff
-
-
-
-
+invoke StdOut, offset endMachineMessageTitle
 ;---------------------------------END READING------------------------------
 
 
