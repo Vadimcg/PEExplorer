@@ -15,7 +15,8 @@ consoleTitle BYTE "PEExplorer",0
 titleMessage BYTE "Portable Executable Explorer",13,10, 0
 pathMessage BYTE "Path to your PE file:",13,10, 0
 machineMessageTitle BYTE "Machine:",0
-endMachineMessageTitle BYTE " type", 0
+endMachineMessageTitle BYTE " type",13,10,0
+numberOfSectionTitle BYTE "Number of sections:",0
 
 
 fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
@@ -86,6 +87,8 @@ invoke StdOut, offset fileSizeIsMessege
 invoke dwtoa,offset readInfo,offset buff
 invoke StdOut, offset buff
 invoke StdOut, offset bytesMessege
+xor eax,eax
+mov readInfo,eax
 ;-------------------------------END----------------------------------------
 
 
@@ -142,7 +145,6 @@ invoke StdOut, offset PEMessege
 
 
 ;Machine
-
 mov eax,adreessVal
 add eax,4
 mov adreessVal,eax
@@ -152,6 +154,20 @@ invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
 invoke StdOut, offset machineMessageTitle
 invoke StdOut, offset buff
 invoke StdOut, offset endMachineMessageTitle
+
+;NumberOfSections
+mov eax,adreessVal
+add eax,2
+mov adreessVal,eax
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
+invoke StdOut, offset numberOfSectionTitle
+xor eax,eax
+mov ax,WORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
 ;---------------------------------END READING------------------------------
 
 
