@@ -43,18 +43,18 @@ readInfo dd ?
 
 adreessVal dd ?
 
+;Variable for writing date 
+dateTimeVal BYTE 16 dup(?)
+
 .code 
 
-;Function clear buffer
-clearBuffer PROC
-    invoke StdOut,OFFSET debugMessege
-    ret
-clearBuffer ENDP
+
 main:
+
 
 invoke SetConsoleTitle, addr consoleTitle
 
-
+clearBuffer PROTO
 call clearBuffer
 
 invoke StdOut, offset titleMessage
@@ -168,6 +168,17 @@ mov ax,WORD PTR buff
 invoke dwtoa,eax,offset buff
 invoke StdOut, offset buff
 
+
+;TimeDateStamp
+mov eax,adreessVal
+add eax,2
+mov adreessVal,eax
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+
+
 ;---------------------------------END READING------------------------------
 
 
@@ -200,6 +211,12 @@ jmp endPE
 
 endPE:
 invoke ExitProcess, 0
+
+;Function clear buffer
+clearBuffer PROC
+    invoke StdOut,OFFSET debugMessege
+    ret
+clearBuffer ENDP
 
 end main
 
