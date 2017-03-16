@@ -17,6 +17,7 @@ pathMessage BYTE "Path to your PE file:",13,10, 0
 machineMessageTitle BYTE "Machine:",0
 endMachineMessageTitle BYTE " type",13,10,0
 numberOfSectionTitle BYTE "Number of sections:",0
+numberOfSectionTitle BYTE "Number of sections:",0
 
 
 fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
@@ -54,8 +55,8 @@ main:
 
 invoke SetConsoleTitle, addr consoleTitle
 
-clearBuffer PROTO
-call clearBuffer
+dateFromSeconds PROTO,milsec:DWORD
+
 
 invoke StdOut, offset titleMessage
 invoke StdOut, offset pathMessage
@@ -169,6 +170,13 @@ invoke dwtoa,eax,offset buff
 invoke StdOut, offset buff
 
 
+mov ah,10
+mov al,13
+
+mov readInfo,eax
+invoke StdOut, offset readInfo
+
+
 ;TimeDateStamp
 mov eax,adreessVal
 add eax,2
@@ -177,6 +185,9 @@ mov adreessVal,eax
 invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
 
+mov eax,DWORD PTR buff 
+push eax
+call dateFromSeconds
 
 
 ;---------------------------------END READING------------------------------
@@ -213,10 +224,17 @@ endPE:
 invoke ExitProcess, 0
 
 ;Function clear buffer
-clearBuffer PROC
-    invoke StdOut,OFFSET debugMessege
+dateFromSeconds PROC, milsec:DWORD
+
+    mov eax,milsec
+
+    ; 31556926-sec in one year
+    div  31556926
+
+
+    invoke StdOut,ADDR milsec
     ret
-clearBuffer ENDP
+dateFromSeconds ENDP
 
 end main
 
