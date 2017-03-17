@@ -11,13 +11,19 @@ includelib \masm32\lib\user32.lib
     
 .data
 
+helperVal DWORD ?
+
 consoleTitle BYTE "PEExplorer",0
 titleMessage BYTE "Portable Executable Explorer",13,10, 0
 pathMessage BYTE "Path to your PE file:",13,10, 0
 machineMessageTitle BYTE "Machine:",0
 endMachineMessageTitle BYTE " type",13,10,0
 numberOfSectionTitle BYTE "Number of sections:",0
-numberOfSectionTitle BYTE "Number of sections:",0
+timeDateStampTitle BYTE "TimeDateStamp:",0
+
+dotACSII BYTE 2Eh,0
+nLine BYTE 13,10,0
+
 
 
 fileOpenSuccessMessege BYTE  "File was opended!",13,10,0
@@ -185,8 +191,10 @@ mov adreessVal,eax
 invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
 
+invoke StdOut, offset timeDateStampTitle
+
 mov eax,DWORD PTR buff 
-push eax
+push eax 
 call dateFromSeconds
 
 
@@ -223,16 +231,56 @@ jmp endPE
 endPE:
 invoke ExitProcess, 0
 
-;Function clear buffer
+;Function showing date
 dateFromSeconds PROC, milsec:DWORD
 
+    ;Getting year
+    xor edx,edx    
     mov eax,milsec
 
     ; 31556926-sec in one year
-    div  31556926
+    mov ebx,1E1853Eh
+    ;1470103413/31556926=46
+    div  ebx
+
+    mov helperVal,edx
+    
+    ;UNIX time from 01.01.1970
+    add eax,1970
+    invoke dwtoa,eax,offset readInfo
+    invoke StdOut,offset readInfo
 
 
-    invoke StdOut,ADDR milsec
+    invoke StdOut,offset dotACSII
+
+    ;Getting month
+    
+    mov eax,helperVal
+    xor edx,edx
+    ;2592000-sec in one month
+    mov ebx,278D00h
+    div  ebx
+    mov helperVal,edx
+    ;UNIX time from 01.01.1970
+    add eax,1
+    invoke dwtoa,eax,offset readInfo
+    invoke StdOut,offset readInfo
+
+    invoke StdOut,offset dotACSII
+
+    ;Getting day
+     mov eax,helperVal
+    xor edx,edx
+    ;86400-sec in one day
+    mov ebx,549888
+    div  ebx
+    mov helperVal,edx
+    ;UNIX time from 01.01.1970
+    add eax,1
+    invoke dwtoa,eax,offset readInfo
+    invoke StdOut,offset readInfo
+
+
     ret
 dateFromSeconds ENDP
 
