@@ -20,6 +20,8 @@ machineMessageTitle BYTE "Machine:",0
 endMachineMessageTitle BYTE " type",13,10,0
 numberOfSectionTitle BYTE "Number of sections:",0
 timeDateStampTitle BYTE "TimeDateStamp:",0
+pointerToSymbolTableTitle BYTE "PointerToSymbolTable:",0	
+
 
 dotACSII BYTE 2Eh,0
 nLine BYTE 13,10,0
@@ -46,9 +48,9 @@ fileHandle DWORD  ?
 
 buff BYTE 100 dup(?)
 ;Variable will store amout of read bytes
-readInfo dd ?
+readInfo DWORD ?
 
-adreessVal dd ?
+adreessVal DWORD ?
 
 ;Variable for writing date 
 dateTimeVal BYTE 16 dup(?)
@@ -62,7 +64,7 @@ main:
 invoke SetConsoleTitle, addr consoleTitle
 
 dateFromSeconds PROTO,milsec:DWORD
-
+debugShowNumber PROTO,number:DWORD
 
 invoke StdOut, offset titleMessage
 invoke StdOut, offset pathMessage
@@ -182,20 +184,37 @@ mov al,13
 mov readInfo,eax
 invoke StdOut, offset readInfo
 
-
 ;TimeDateStamp
 mov eax,adreessVal
 add eax,2
 mov adreessVal,eax
+
+
 
 invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
 
 invoke StdOut, offset timeDateStampTitle
 
-mov eax,DWORD PTR buff 
-push eax 
-call dateFromSeconds
+invoke dateFromSeconds,DWORD PTR buff 
+invoke StdOut,offset nLine
+
+;PointerToSymbolTable	
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset pointerToSymbolTableTitle
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+xor eax,eax
+mov ax,WORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
 
 
 ;---------------------------------END READING------------------------------
@@ -242,17 +261,17 @@ dateFromSeconds PROC, milsec:DWORD
     mov ebx,1E1853Eh
     ;1470103413/31556926=46
     div  ebx
+    
 
     mov helperVal,edx
     
     ;UNIX time from 01.01.1970
-    add eax,1970
+    add eax,1245
     invoke dwtoa,eax,offset readInfo
     invoke StdOut,offset readInfo
 
 
     invoke StdOut,offset dotACSII
-
     ;Getting month
     
     mov eax,helperVal
@@ -267,9 +286,8 @@ dateFromSeconds PROC, milsec:DWORD
     invoke StdOut,offset readInfo
 
     invoke StdOut,offset dotACSII
-
     ;Getting day
-     mov eax,helperVal
+    mov eax,helperVal
     xor edx,edx
     ;86400-sec in one day
     mov ebx,549888
@@ -280,9 +298,23 @@ dateFromSeconds PROC, milsec:DWORD
     invoke dwtoa,eax,offset readInfo
     invoke StdOut,offset readInfo
 
-
     ret
 dateFromSeconds ENDP
+
+;Function showing number
+debugShowNumber PROC, number:DWORD
+
+        invoke StdOut,offset nLine
+
+
+        invoke dwtoa,number,offset helperVal
+        invoke StdOut,offset helperVal
+
+        invoke StdOut,offset nLine
+
+       ret
+
+debugShowNumber ENDP
 
 end main
 
