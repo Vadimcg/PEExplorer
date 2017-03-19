@@ -47,6 +47,8 @@ FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
 fileHandle DWORD  ?
 
 buff BYTE 100 dup(?)
+numberBuff BYTE 7 dup(?)
+
 ;Variable will store amout of read bytes
 readInfo DWORD ?
 
@@ -266,9 +268,9 @@ dateFromSeconds PROC, milsec:DWORD
     mov helperVal,edx
     
     ;UNIX time from 01.01.1970
-    add eax,1245
-    invoke dwtoa,eax,offset readInfo
-    invoke StdOut,offset readInfo
+    add eax,1970
+    invoke dwtoa,eax,offset numberBuff
+    invoke StdOut,offset numberBuff 
 
 
     invoke StdOut,offset dotACSII
