@@ -23,6 +23,7 @@ timeDateStampTitle BYTE "TimeDateStamp:",0
 pointerToSymbolTableTitle BYTE "PointerToSymbolTable:",0	
 numberOfSymbolsTitle BYTE "NumberOfSymbols:",0
 sizeOfOptionalHeaderTitle BYTE "SizeOfOptionalHeader:",0
+characteristicsTitle BYTE "Characteristics:",0
 
 dotACSII BYTE 2Eh,0
 nLine BYTE 13,10,0
@@ -242,6 +243,23 @@ add eax,4
 mov adreessVal,eax
 
 invoke StdOut, offset sizeOfOptionalHeaderTitle
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
+
+xor eax,eax
+mov ax,WORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
+
+;Characteristics
+mov eax,adreessVal
+add eax,2
+mov adreessVal,eax
+
+invoke StdOut, offset characteristicsTitle
 
 invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
