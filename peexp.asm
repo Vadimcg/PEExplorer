@@ -27,8 +27,13 @@ characteristicsTitle BYTE "Characteristics:",0
 
 ;Magic constants
 magicTitle BYTE "Magic:",0
-pe32 BYTE "PE32:",13,10,0
+pe32 BYTE "PE32",13,10,0
 pe64 BYTE "PE64",13,10,0
+
+sizeOfCode BYTE "SizeOfCode:"
+sizeOfInitializedData BYTE "SizeOfInitializedData:",0
+SizeOfUninitializedData BYTE "SizeOfUninitializedData:",0
+
 
 dotACSII BYTE 2Eh,0
 nLine BYTE 13,10,0
@@ -51,6 +56,8 @@ fileSizeIsMessege BYTE  "File size is:",0
 bytesMessege BYTE " bytes",13,10,0
 
 FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
+
+peType BYTE ?
 fileHandle DWORD  ?
 
 helperVal DWORD ?
@@ -301,14 +308,53 @@ jz showPE64
 
 showPE32:
 invoke StdOut, offset pe32
+mov al,10
+mov peType,al
+
 jmp afterMagic
 
 showPE64:
 invoke StdOut, offset pe32
+mov al,20
+mov peType,al
 jmp afterMagic
 
 afterMagic:
 
+;SizeOfCode
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset sizeOfCode
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
+
+
+;SizeOfInitializedData
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset sizeOfInitializedData
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
+
+;SizeOfUninitializedData
 
 
 ;---------------------------------END READING------------------------------
