@@ -11,7 +11,7 @@ includelib \masm32\lib\user32.lib
     
 .data
 
-helperVal DWORD ?
+
 
 consoleTitle BYTE "PEExplorer",0
 titleMessage BYTE "Portable Executable Explorer",13,10, 0
@@ -24,6 +24,11 @@ pointerToSymbolTableTitle BYTE "PointerToSymbolTable:",0
 numberOfSymbolsTitle BYTE "NumberOfSymbols:",0
 sizeOfOptionalHeaderTitle BYTE "SizeOfOptionalHeader:",0
 characteristicsTitle BYTE "Characteristics:",0
+
+;Magic constants
+magicTitle BYTE "Magic:",0
+pe32 BYTE "PE32:",13,10,0
+pe64 BYTE "PE64",13,10,0
 
 dotACSII BYTE 2Eh,0
 nLine BYTE 13,10,0
@@ -47,6 +52,8 @@ bytesMessege BYTE " bytes",13,10,0
 
 FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
 fileHandle DWORD  ?
+
+helperVal DWORD ?
 
 buff BYTE 100 dup(?)
 numberBuff BYTE 7 dup(?)
@@ -270,6 +277,40 @@ invoke dwtoa,eax,offset buff
 invoke StdOut, offset buff
 
 invoke StdOut,offset nLine
+
+
+
+;Magic
+mov eax,adreessVal
+add eax,2
+mov adreessVal,eax
+
+invoke StdOut, offset magicTitle
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
+
+xor eax,eax
+mov ax,WORD PTR buff
+
+cmp ax,10Bh
+jz showPE32
+
+cmp ax,20Bh
+jz showPE64
+
+showPE32:
+invoke StdOut, offset pe32
+jmp afterMagic
+
+showPE64:
+invoke StdOut, offset pe32
+jmp afterMagic
+
+afterMagic:
+
+
+
 ;---------------------------------END READING------------------------------
 
 
