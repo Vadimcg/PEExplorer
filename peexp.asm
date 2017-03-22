@@ -111,7 +111,7 @@ jz fileSizeError
 
 ;Show information about size
 invoke StdOut, offset fileSizeIsMessege
-invoke dwtoa,offset readInfo,offset buff
+invoke dwtoa,readInfo,offset buff
 invoke StdOut, offset buff
 invoke StdOut, offset bytesMessege
 xor eax,eax
@@ -355,6 +355,20 @@ invoke StdOut, offset buff
 invoke StdOut,offset nLine
 
 ;SizeOfUninitializedData
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset SizeOfUninitializedData
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
 
 
 ;---------------------------------END READING------------------------------
