@@ -32,7 +32,9 @@ pe64 BYTE "PE64",13,10,0
 
 sizeOfCode BYTE "SizeOfCode:"
 sizeOfInitializedData BYTE "SizeOfInitializedData:",0
-SizeOfUninitializedData BYTE "SizeOfUninitializedData:",0
+sizeOfUninitializedData BYTE "SizeOfUninitializedData:",0
+
+entryPoint BYTE "EtryPoint:",0
 
 
 dotACSII BYTE 2Eh,0
@@ -359,7 +361,7 @@ mov eax,adreessVal
 add eax,4
 mov adreessVal,eax
 
-invoke StdOut, offset SizeOfUninitializedData
+invoke StdOut, offset sizeOfUninitializedData
 
 invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
 invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
@@ -369,6 +371,24 @@ invoke dwtoa,eax,offset buff
 invoke StdOut, offset buff
 
 invoke StdOut,offset nLine
+
+;EntryPoint
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset entryPoint
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
+
+
 
 
 ;---------------------------------END READING------------------------------
