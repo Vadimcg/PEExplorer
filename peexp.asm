@@ -35,6 +35,7 @@ sizeOfInitializedData BYTE "SizeOfInitializedData:",0
 sizeOfUninitializedData BYTE "SizeOfUninitializedData:",0
 
 entryPoint BYTE "EtryPoint:",0
+baseOfCode BYTE "BaseOfCode:",0
 
 
 dotACSII BYTE 2Eh,0
@@ -389,6 +390,21 @@ invoke StdOut, offset buff
 invoke StdOut,offset nLine
 
 
+;BaseOfCode(hex)
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset baseOfCode
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
 
 
 ;---------------------------------END READING------------------------------
