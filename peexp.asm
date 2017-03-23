@@ -36,7 +36,8 @@ sizeOfUninitializedData BYTE "SizeOfUninitializedData:",0
 
 entryPoint BYTE "EtryPoint:",0
 baseOfCode BYTE "BaseOfCode:",0
-
+baseOfData BYTE "BaseOfData:",0
+imageBase BYTE "ImageBase:",0
 
 dotACSII BYTE 2Eh,0
 nLine BYTE 13,10,0
@@ -59,7 +60,7 @@ fileSizeIsMessege BYTE  "File size is:",0
 bytesMessege BYTE " bytes",13,10,0
 
 FileName db "C:\Users\Vadimcg\Desktop\MASMProjects\ff.exe",NULL
-
+;10 PE and 20 PE+
 peType BYTE ?
 fileHandle DWORD  ?
 
@@ -404,6 +405,70 @@ mov eax,DWORD PTR buff
 invoke dwtoa,eax,offset buff
 invoke StdOut, offset buff
 
+invoke StdOut,offset nLine
+
+;BaseOfData(hex)
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset baseOfData
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
+
+;ImageBase(hex)
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset imageBase
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+
+cmp peType,10
+jz pe32ImageBase
+
+pe32ImageBase:
+
+; For PE 32 format
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+jmp afterImageBase
+
+; For PE 64 format
+invoke ReadFile,fileHandle,offset buff,8,addr readInfo,0
+mov eax,DWORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+mov eax,DWORD PTR buff+4
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+mov eax,adreessVal
+add eax,8
+mov adreessVal,eax
+
+jmp afterImageBase
+
+
+
+
+afterImageBase:
 invoke StdOut,offset nLine
 
 
