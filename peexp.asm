@@ -39,6 +39,16 @@ baseOfCode BYTE "BaseOfCode:",0
 baseOfData BYTE "BaseOfData:",0
 imageBase BYTE "ImageBase:",0
 
+sectionAlignment BYTE "SectionAlignment:",0
+fileAlignment BYTE "FileAlignment:",0
+majorOperatingSystemVersion BYTE "MajorOperatingSystemVersion:",0
+minorOperatingSystemVersion BYTE "MinorOperatingSystemVersion:",0
+sizeOfImage BYTE "SizeOfImage:",0
+sizeOfHeaders BYTE "SizeOfHeaders:",0
+checkSum BYTE "CheckSum:",0
+subsystem BYTE "Subsystem:",0 
+ 
+
 dotACSII BYTE 2Eh,0
 nLine BYTE 13,10,0
 
