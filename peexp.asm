@@ -558,6 +558,25 @@ invoke StdOut, offset buff
 
 invoke StdOut,offset nLine
 
+;SizeOfHeaders
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset sizeOfHeaders
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,4,addr readInfo,0
+
+xor ax,ax
+mov ax,WORD PTR buff
+invoke dwtoa,eax,offset buff
+invoke StdOut, offset buff
+
+invoke StdOut,offset nLine
+
+
+
 
 
 ;---------------------------------END READING------------------------------
