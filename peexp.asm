@@ -47,6 +47,8 @@ sizeOfImage BYTE "SizeOfImage:",0
 sizeOfHeaders BYTE "SizeOfHeaders:",0
 checkSum BYTE "CheckSum:",0
 subsystem BYTE "Subsystem:",0 
+
+windowsCUI BYTE "Windows command line",13,10,0 
  
 
 dotACSII BYTE 2Eh,0
@@ -97,6 +99,7 @@ invoke SetConsoleTitle, addr consoleTitle
 
 dateFromSeconds PROTO,milsec:DWORD
 debugShowNumber PROTO,number:DWORD
+showSubsystem PROTO,subsystem:WORD
 
 invoke StdOut, offset titleMessage
 invoke StdOut, offset pathMessage
@@ -543,7 +546,7 @@ invoke StdOut,offset nLine
 
 ;SizeOfImage
 mov eax,adreessVal
-add eax,2
+add eax,14
 mov adreessVal,eax
 
 invoke StdOut, offset sizeOfImage
@@ -593,6 +596,17 @@ invoke StdOut, offset buff
 invoke StdOut,offset nLine
 
 
+;Subsystem
+mov eax,adreessVal
+add eax,4
+mov adreessVal,eax
+
+invoke StdOut, offset subsystem
+
+invoke SetFilePointer,fileHandle,adreessVal,0,FILE_BEGIN
+invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
+
+invoke showSubsystem,WORD PTR buff
 
 
 
@@ -696,6 +710,23 @@ debugShowNumber PROC, number:DWORD
        ret
 
 debugShowNumber ENDP
+
+
+;Show subsystem
+showSubsystem PROC,system:WORD
+
+    mov ax,system
+
+    cmp ax,3
+    jz windows_console_subsystem
+
+    windows_console_subsystem:
+    invoke StdOut,offset windowsCUI
+
+ret
+showSubsystem ENDP
+
+
 
 end main
 
