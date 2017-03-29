@@ -48,7 +48,9 @@ sizeOfHeaders BYTE "SizeOfHeaders:",0
 checkSum BYTE "CheckSum:",0
 subsystem BYTE "Subsystem:",0 
 
-windowsCUI BYTE "Windows command line",13,10,0 
+unknownSubsytem BYTE "Unknown subsytem",13,10,0
+windowsCUI BYTE "CUI windows application",13,10,0
+windowsGUI BYTE "GUI windows application",13,10,0 
  
 
 dotACSII BYTE 2Eh,0
@@ -717,13 +719,29 @@ showSubsystem PROC,system:WORD
 
     mov ax,system
 
+    cmp ax,0
+    jz unknown_subsystem
+
+    cmp ax,2
+    jz windows_gui_subsystem
+
     cmp ax,3
     jz windows_console_subsystem
 
     windows_console_subsystem:
     invoke StdOut,offset windowsCUI
+    jmp exitSubsytem
 
-ret
+    unknown_subsystem:
+    invoke StdOut,offset unknownSubsytem
+    jmp exitSubsytem
+
+    windows_gui_subsystem:
+    invoke StdOut,offset windowsGUI
+
+    exitSubsytem:
+    ret
+
 showSubsystem ENDP
 
 
