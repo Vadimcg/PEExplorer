@@ -610,6 +610,30 @@ invoke ReadFile,fileHandle,offset buff,2,addr readInfo,0
 
 invoke showSubsystem,WORD PTR buff
 
+cmp peType,10
+jz pe32Shift
+
+jmp pe64Shift
+
+pe32Shift:
+mov eax,adreessVal
+add eax,156
+mov adreessVal,eax
+
+jmp afterShift
+
+
+pe64Shift:
+mov eax,adreessVal
+add eax,172
+mov adreessVal,eax
+
+jmp afterShift
+
+
+afterShift:
+
+
 
 
 
